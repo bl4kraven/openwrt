@@ -13,9 +13,10 @@ preinit_set_mac_address() {
 		ip link set dev eth0 address $(mtd_get_mac_binary "ART" 0x6)
 		ip link set dev eth1 address $(mtd_get_mac_binary "ART" 0x0)
 		;;
+	asus,rt-acrh17|\
 	asus,rt-ac58u)
 		CI_UBIPART=UBI_DEV
-		mac=$(mtd_get_mac_binary_ubi Factory 4102)
+		mac=$(mtd_get_mac_binary_ubi Factory 0x1006)
 		ifconfig eth0 hw ether $mac 2>/dev/null
 		;;
 	linksys,ea8300)
