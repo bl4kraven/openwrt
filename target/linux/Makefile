@@ -9,3 +9,6 @@ export TARGET_BUILD=1
 
 prereq clean download prepare compile install oldconfig menuconfig nconfig xconfig update refresh dtb: FORCE
 	@+$(NO_TRACE_MAKE) -C $(firstword $(wildcard feeds/$(BOARD) $(BOARD))) $@
+
+kernel:
+	@+$(NO_TRACE_MAKE) -C $(BOARD) $(BUILD_DIR)/linux-$(BOARD)$(if $(SUBTARGET),_$(SUBTARGET))/linux-$(LINUX_VERSION)/.image
