@@ -180,6 +180,9 @@ kernel_xconfig: prepare_kernel_conf
 kernel: prepare_kernel_conf
 	$(_SINGLE)$(NO_TRACE_MAKE) -C target/linux kernel
 
+mconfig: prepare_kernel_conf
+	$(_SINGLE)$(NO_TRACE_MAKE) -C target/linux mconfig
+
 $(STAGING_DIR_HOST)/.prereq-build: include/prereq-build.mk
 	mkdir -p tmp
 	@$(_SINGLE)$(NO_TRACE_MAKE) -j1 -r -s -f $(TOPDIR)/include/prereq-build.mk prereq 2>/dev/null || { \

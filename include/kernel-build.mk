@@ -173,6 +173,14 @@ define BuildKernel
 		$$@
 	$(call LINUX_RECONF_DIFF,$(LINUX_DIR)/.config) > $(LINUX_RECONFIG_TARGET)
 
+  # modules kconfig + kernel kconfig
+  mconfig: $(STAMP_PREPARED) $(STAMP_CHECKED) $(STAMP_CONFIGURED) FORCE
+	rm -f $(LINUX_DIR)/.config.prev
+	rm -f $(STAMP_CONFIGURED)
+	$(_SINGLE)$(KERNEL_MAKE) \
+		YACC=$(STAGING_DIR_HOST)/bin/bison \
+		menuconfig
+
   install: $(LINUX_DIR)/.image
 	+$(MAKE) -C image compile install TARGET_BUILD=
 
