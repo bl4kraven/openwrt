@@ -24,6 +24,7 @@ ramips_setup_interfaces()
 	ralink,mt7620a-evb|\
 	ralink,mt7620a-mt7610e-evb|\
 	ralink,mt7620a-v22sg-evb|\
+	netgear,wnr2020|\
 	sanlinking,d240|\
 	youku,yk1|\
 	zbtlink,zbt-ape522ii|\
@@ -260,6 +261,9 @@ ramips_setup_macs()
 	zbtlink,zbt-we826-e|\
 	zbtlink,zbt-wr8305rt)
 		wan_mac=$(macaddr_add "$(mtd_get_mac_binary factory 0x4)" 1)
+		;;
+	netgear,wnr2020)
+		wan_mac="68:F7:28:F0:1E:1C"
 		;;
 	alfa-network,ac1200rm|\
 	dlink,dir-810l|\

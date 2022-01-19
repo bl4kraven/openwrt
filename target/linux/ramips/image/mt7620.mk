@@ -1271,3 +1271,18 @@ define Device/zyxel_keenetic-viva
   SUPPORTED_DEVICES += kng_rc
 endef
 TARGET_DEVICES += zyxel_keenetic-viva
+
+define Device/netgear_wnr2020
+  $(Device/uimage-lzma-loader)
+  SOC := mt7620a
+  IMAGE_SIZE := 3776k
+  BLOCKSIZE := 64k
+  IMAGES += sysupgrade.bin
+  IMAGES/sysupgrade.bin := append-kernel | append-rootfs | pad-rootfs | append-metadata | check-size $$$$(IMAGE_SIZE)
+  DEVICE_VENDOR := NETGEAR
+  DEVICE_MODEL := WNR2020
+  SUPPORTED_DEVICES += wnr2020
+  KERNEL_INITRAMFS := $$(KERNEL)
+  KERNEL_INITRAMFS_SUFFIX := -factory.trx
+endef
+TARGET_DEVICES += netgear_wnr2020
