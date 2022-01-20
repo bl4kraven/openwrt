@@ -22,7 +22,7 @@ start_instance() {
 		config_get key "$cfg" 'key'
 		config_get_bool route "$cfg" 'route' '0'
 		[ "$route" = "1" ] && args='-r'
-		service_start /usr/sbin/edge -b -f $args -s $netmask -a $ipaddr -c $community -k $key -l ${supernode}:${port} -m $(cat /sys/class/net/eth0/address|tr a-z A-Z)
+		service_start /usr/sbin/edge -q -b -f $args -s $netmask -a $ipaddr -c $community -k $key -l ${supernode}:${port} -m $(cat /sys/class/net/eth0/address|tr a-z A-Z)
 		;;
 	esac
 }
