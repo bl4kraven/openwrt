@@ -101,9 +101,11 @@
 	status = "okay";
 };
 
+/*
 &pcie {
 	status = "okay";
 };
+*/
 
 &eth0 {
 	status = "okay";
