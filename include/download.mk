@@ -65,18 +65,18 @@ endef
 
 gen_sha256sum = $(shell $(MKHASH) sha256 $(DL_DIR)/$(1))
 
-# Used in Build/CoreTargets and HostBuild/Core as an integrity check for
-# downloaded files.  It will add a FORCE rule if the sha256 hash does not
-# match, so that the download can be more thoroughly handled by download.pl.
-define check_download_integrity
-  expected_hash:=$(strip $(if $(filter-out x,$(HASH)),$(HASH),$(MIRROR_HASH)))
-  $$(if $$(and $$(filter-out x,$$(expected_hash)),$(FILE),$$(wildcard $(DL_DIR)/$(FILE)), \
-	       $$(filter undefined,$$(flavor DownloadChecked/$(FILE)))), \
-    $$(eval DownloadChecked/$(FILE):=1) \
-    $$(if $$(filter-out $$(call gen_sha256sum,$(FILE)),$$(expected_hash)), \
-      $(DL_DIR)/$(FILE): FORCE) \
-  )
-endef
+## Used in Build/CoreTargets and HostBuild/Core as an integrity check for
+## downloaded files.  It will add a FORCE rule if the sha256 hash does not
+## match, so that the download can be more thoroughly handled by download.pl.
+#define check_download_integrity
+#  expected_hash:=$(strip $(if $(filter-out x,$(HASH)),$(HASH),$(MIRROR_HASH)))
+#  $$(if $$(and $$(filter-out x,$$(expected_hash)),$(FILE),$$(wildcard $(DL_DIR)/$(FILE)), \
+#	       $$(filter undefined,$$(flavor DownloadChecked/$(FILE)))), \
+#    $$(eval DownloadChecked/$(FILE):=1) \
+#    $$(if $$(filter-out $$(call gen_sha256sum,$(FILE)),$$(expected_hash)), \
+#      $(DL_DIR)/$(FILE): FORCE) \
+#  )
+#endef
 
 ifdef CHECK
 check_escape=$(subst ','\'',$(1))
