@@ -650,7 +650,8 @@ define Device/Build/image
 	gzip -c -9n $$^ > $$@
 
   $(BIN_DIR)/$(call DEVICE_IMG_NAME,$(1),$(2)): $(KDIR)/tmp/$(call DEVICE_IMG_NAME,$(1),$(2))
-	cp $$^ $$@
+	#cp $$^ $$@
+	$$(LN) $$^ $$@
 
   $(BUILD_DIR)/json_info_files/$(call DEVICE_IMG_NAME,$(1),$(2)).json: $(BIN_DIR)/$(call DEVICE_IMG_NAME,$(1),$(2))$$(GZ_SUFFIX)
 	@mkdir -p $$(shell dirname $$@)
@@ -862,6 +863,10 @@ define BuildImage
 	)
 
   install: install-images
+ifeq ($(QUICK),)
 	$(call Image/Manifest)
+else
+	@echo skip manifest.....
+endif
 
 endef

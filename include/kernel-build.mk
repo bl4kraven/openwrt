@@ -125,7 +125,11 @@ define BuildKernel
 		echo; \
 	) > $$@
 
+ifeq ($(QUICK),)
   $(STAMP_CONFIGURED): $(STAMP_PREPARED) $(LINUX_KCONFIG_LIST) $(TOPDIR)/.config FORCE
+else
+  $(STAMP_CONFIGURED): $(STAMP_PREPARED) $(LINUX_KCONFIG_LIST) $(TOPDIR)/.config
+endif
 	$(Kernel/Configure)
 	touch $$@
 
@@ -133,14 +137,22 @@ define BuildKernel
   $(LINUX_DIR)/.modules: export PKG_CONFIG_PATH=$$(STAGING_DIR_HOST)/lib/pkgconfig
   $(LINUX_DIR)/.modules: export PKG_CONFIG_LIBDIR=$$(STAGING_DIR_HOST)/lib/pkgconfig
   $(LINUX_DIR)/.modules: export FAIL_ON_UNCONFIGURED=1
+ifeq ($(QUICK),)
   $(LINUX_DIR)/.modules: $(STAMP_CONFIGURED) $(LINUX_DIR)/.config FORCE
+else
+  $(LINUX_DIR)/.modules: $(STAMP_CONFIGURED) $(LINUX_DIR)/.config
+endif
 	$(Kernel/CompileModules)
 	touch $$@
 
   $(LINUX_DIR)/.image: export STAGING_PREFIX=$$(STAGING_DIR_HOST)
   $(LINUX_DIR)/.image: export PKG_CONFIG_PATH=$$(STAGING_DIR_HOST)/lib/pkgconfig
   $(LINUX_DIR)/.image: export PKG_CONFIG_LIBDIR=$$(STAGING_DIR_HOST)/lib/pkgconfig
+ifeq ($(QUICK),)
   $(LINUX_DIR)/.image: $(STAMP_CONFIGURED) $(if $(CONFIG_STRIP_KERNEL_EXPORTS),$(KERNEL_BUILD_DIR)/symtab.h) FORCE
+else
+  $(LINUX_DIR)/.image: $(STAMP_CONFIGURED) $(if $(CONFIG_STRIP_KERNEL_EXPORTS),$(KERNEL_BUILD_DIR)/symtab.h)
+endif
 	$(Kernel/CompileImage)
 	$(Kernel/CollectDebug)
 	touch $$@

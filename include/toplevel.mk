@@ -75,7 +75,10 @@ endif
 
 _ignore = $(foreach p,$(IGNORE_PACKAGES),--ignore $(p))
 
+export QUICK
+
 prepare-tmpinfo: FORCE
+ifeq ($(QUICK),)
 	@+$(MAKE) -r -s $(STAGING_DIR_HOST)/.prereq-build $(PREP_MK)
 	mkdir -p tmp/info
 	$(_SINGLE)$(NO_TRACE_MAKE) -j1 -r -s -f include/scan.mk SCAN_TARGET="packageinfo" SCAN_DIR="package" SCAN_NAME="package" SCAN_DEPTH=5 SCAN_EXTRA=""
@@ -86,9 +89,13 @@ prepare-tmpinfo: FORCE
 	done
 	[ tmp/.config-feeds.in -nt tmp/.packageauxvars ] || ./scripts/feeds feed_config > tmp/.config-feeds.in
 	./scripts/package-metadata.pl mk tmp/.packageinfo > tmp/.packagedeps || { rm -f tmp/.packagedeps; false; }
+	./scripts/package-metadata.pl mkmin tmp/.packageinfo > tmp/.mini_packagedeps || { rm -f tmp/.mini_packagedeps; false; }
 	./scripts/package-metadata.pl pkgaux tmp/.packageinfo > tmp/.packageauxvars || { rm -f tmp/.packageauxvars; false; }
 	./scripts/package-metadata.pl usergroup tmp/.packageinfo > tmp/.packageusergroup || { rm -f tmp/.packageusergroup; false; }
 	touch $(TOPDIR)/tmp/.build
+else
+	@echo skip prepare-tmpinfo
+endif
 
 .config: ./scripts/config/conf $(if $(CONFIG_HAVE_DOT_CONFIG),,prepare-tmpinfo)
 	@+if [ \! -e .config ] || ! grep CONFIG_HAVE_DOT_CONFIG .config >/dev/null; then \
@@ -233,7 +240,9 @@ ifeq ($(SDK),1)
 else
 
 %::
+ifeq ($(QUICK),)
 	@+$(PREP_MK) $(NO_TRACE_MAKE) -r -s prereq
+endif
 	@( \
 		cp .config tmp/.config; \
 		./scripts/config/conf $(KCONF_FLAGS) --defconfig=tmp/.config -w tmp/.config Config.in > /dev/null 2>&1; \

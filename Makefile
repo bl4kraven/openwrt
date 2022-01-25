@@ -127,16 +127,25 @@ diffconfig: FORCE
 buildinfo: FORCE
 	$(_SINGLE)$(SUBMAKE) -r diffconfig buildversion feedsversion
 
+ifeq ($(QUICK),)
 prepare: .config $(tools/stamp-compile) $(toolchain/stamp-compile)
-	$(_SINGLE)$(SUBMAKE) -r buildinfo
+	#$(_SINGLE)$(SUBMAKE) -r buildinfo
+	@echo "end prepare...."
+else
+prepare:
+	#$(_SINGLE)$(SUBMAKE) -r buildinfo
+	@echo "end prepare...."
+endif
 
 world: prepare $(target/stamp-compile) $(package/stamp-compile) $(package/stamp-install) $(target/stamp-install) FORCE
-	$(_SINGLE)$(SUBMAKE) -r package/index
-	$(_SINGLE)$(SUBMAKE) -r json_overview_image_info
-	$(_SINGLE)$(SUBMAKE) -r checksum
-ifneq ($(CONFIG_CCACHE),)
-	$(STAGING_DIR_HOST)/bin/ccache -s
-endif
+	@echo "end"
+	#$(_SINGLE)$(SUBMAKE) -r package/index
+	#$(_SINGLE)$(SUBMAKE) -r json_overview_image_info
+	#$(_SINGLE)$(SUBMAKE) -r checksum
+#ifneq ($(CONFIG_CCACHE),)
+#	$(STAGING_DIR_HOST)/bin/ccache -s
+#endif
+
 
 .PHONY: clean dirclean prereq prepare world package/symlinks package/symlinks-install package/symlinks-clean
 

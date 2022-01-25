@@ -10,7 +10,11 @@ curdir:=package
 include $(INCLUDE_DIR)/feeds.mk
 include $(INCLUDE_DIR)/rootfs.mk
 
+ifeq ($(QUICK),)
 -include $(TMP_DIR)/.packagedeps
+else
+-include $(TMP_DIR)/.mini_packagedeps
+endif
 package-y += kernel/linux
 $(curdir)/autoremove:=1
 $(curdir)/builddirs:=$(sort $(package-) $(package-y) $(package-m))
@@ -78,7 +82,9 @@ $(curdir)/install: $(TMP_DIR)/.build $(curdir)/merge $(if $(CONFIG_TARGET_PER_DE
 		done; \
 	done || true
 
+ifeq ($(QUICK),)
 	$(CP) $(TARGET_DIR) $(TARGET_DIR_ORIG)
+endif
 
 	$(call prepare_rootfs,$(TARGET_DIR),$(TOPDIR)/files)
 

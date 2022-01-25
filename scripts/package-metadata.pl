@@ -390,8 +390,21 @@ sub get_conditional_dep($$) {
 	}
 }
 
-sub gen_package_mk() {
+sub gen_package_mk($$) {
+	my %config_local;
+	my $level = shift;
+	my $config_file = shift;
 	my $line;
+
+	if ($level == 0)
+	{
+		# parameter 2: mini local config
+		open FILE, "<$config_file" or return;
+		while (<FILE>) {
+			/^(CONFIG_.+?)=(.+)$/ and $config_local{$1} = 1;
+		}
+		close FILE;
+	}
 
 	parse_package_metadata($ARGV[0]) or exit 1;
 	foreach my $srcname (sort {uc($a) cmp uc($b)} keys %srcpackage) {
@@ -434,11 +447,18 @@ sub gen_package_mk() {
 			}
 
 			my $config = '';
+			my $config_name = '';
 			$config = sprintf '$(CONFIG_PACKAGE_%s)', $pkg->{name} unless $pkg->{buildonly};
+			$config_name = sprintf 'CONFIG_PACKAGE_%s', $pkg->{name} unless $pkg->{buildonly};
 
 			$pkg->{prereq} and printf "prereq-%s += %s\n", $config, $src->{path};
 
 			next if $pkg->{buildonly};
+
+			if ($level == 0)
+			{
+				next if !$config_local{$config_name};
+			}
 
 			printf "package-%s += %s\n", $config, $src->{path};
 
@@ -503,10 +523,12 @@ sub gen_package_mk() {
 			}
 		}
 
-		foreach my $suffix (sort keys %deplines) {
-			my $depline = join(" ", sort keys %{$deplines{$suffix}});
-			if ($depline) {
-				$line .= sprintf "\$(curdir)/%s/compile += %s\n", $src->{path}.$suffix, $depline;
+		if ($level == 1) {
+			foreach my $suffix (sort keys %deplines) {
+				my $depline = join(" ", sort keys %{$deplines{$suffix}});
+				if ($depline) {
+					$line .= sprintf "\$(curdir)/%s/compile += %s\n", $src->{path}.$suffix, $depline;
+				}
 			}
 		}
 	}
@@ -795,7 +817,8 @@ sub parse_command() {
 	GetOptions("ignore=s", \@ignore);
 	my $cmd = shift @ARGV;
 	for ($cmd) {
-		/^mk$/ and return gen_package_mk();
+		/^mk$/ and return gen_package_mk(1, "");
+		/^mkmin$/ and return gen_package_mk(0, ".config");
 		/^config$/ and return gen_package_config();
 		/^kconfig/ and return gen_kconfig_overrides();
 		/^source$/ and return gen_package_source();
