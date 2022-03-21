@@ -410,6 +410,7 @@ sub gen_package_mk($$) {
 	foreach my $srcname (sort {uc($a) cmp uc($b)} keys %srcpackage) {
 		my $src = $srcpackage{$srcname};
 		my $variant_default;
+		my $pkg_is_eval;
 		my %deplines = ('' => {});
 
 		foreach my $pkg (@{$src->{packages}}) {
@@ -457,20 +458,36 @@ sub gen_package_mk($$) {
 
 			if ($level == 0)
 			{
-				next if !$config_local{$config_name};
+				if ($config_local{$config_name}) {
+					printf "package-%s += %s\n", $config, $src->{path};
+					$pkg_is_eval = 1;
+				}
 			}
-
-			printf "package-%s += %s\n", $config, $src->{path};
+			else
+			{
+				printf "package-%s += %s\n", $config, $src->{path};
+				$pkg_is_eval = 1;
+			}
 
 			if ($pkg->{variant}) {
 				if (!defined($variant_default) or $pkg->{variant_default}) {
 					$variant_default = $pkg->{variant};
 				}
-				printf "\$(curdir)/%s/variants += \$(if %s,%s)\n", $src->{path}, $config, $pkg->{variant};
+
+				if ($level == 0)
+				{
+					if ($config_local{$config_name}) {
+						printf "\$(curdir)/%s/variants += \$(if %s,%s)\n", $src->{path}, $config, $pkg->{variant};
+					}
+				}
+				else
+				{
+					printf "\$(curdir)/%s/variants += \$(if %s,%s)\n", $src->{path}, $config, $pkg->{variant};
+				}
 			}
 		}
 
-		if (defined($variant_default)) {
+		if (defined($variant_default) && defined($pkg_is_eval)) {
 			printf "\$(curdir)/%s/default-variant := %s\n", $src->{path}, $variant_default;
 		}
 
