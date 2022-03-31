@@ -12,13 +12,15 @@ PKG_VERSION_MAJOR:=$(word 1,$(subst ., ,$(PKG_VERSION))).$(word 2,$(subst ., ,$(
 PKG_RELEASE:=1
 PKG_CPE_ID:=cpe:/a:kitware:cmake
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-Linux-x86_64.tar.gz
 PKG_SOURCE_URL:=https://github.com/Kitware/CMake/releases/download/v$(PKG_VERSION)/ \
 		https://cmake.org/files/v$(PKG_VERSION_MAJOR)/
 PKG_HASH:=313b6880c291bd4fe31c0aa51d6e62659282a521e695f30d5cc0d25abbd5c208
 
 HOST_BUILD_PARALLEL:=1
 HOST_CONFIGURE_PARALLEL:=1
+
+PKG_HASH:=skip
 
 include $(INCLUDE_DIR)/host-build.mk
 
@@ -38,16 +40,23 @@ HOST_CONFIGURE_ARGS := \
 	--system-zstd \
 	--generator=Ninja
 
+define Host/Prepare/Default
+	@echo skip cmake prepare
+endef
+
 define Host/Compile/Default
-	+$(NINJA) -C $(HOST_BUILD_DIR) $(1)
+	@#+$(NINJA) -C $(HOST_BUILD_DIR) $(1)
+	@echo skip cmake compile
 endef
 
 define Host/Install/Default
-	+$(NINJA) -C $(HOST_BUILD_DIR) install
+	@#+$(NINJA) -C $(HOST_BUILD_DIR) install
+	$(HOST_TAR) -zxf $(DL_DIR)/$(PKG_SOURCE)  --strip-components=1 -C $(STAGING_DIR_HOST)
 endef
 
 define Host/Uninstall/Default
-	+$(NINJA) -C $(HOST_BUILD_DIR) uninstall
+	@#+$(NINJA) -C $(HOST_BUILD_DIR) uninstall
+	@echo skip cmake uninstall
 endef
 
 ifneq ($(findstring c,$(OPENWRT_VERBOSE)),)
